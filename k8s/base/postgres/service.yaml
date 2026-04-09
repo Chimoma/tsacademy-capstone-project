@@ -1,0 +1,15 @@
+# k8s/base/postgres/service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres     # This is how other pods will find Postgres: "postgres.taskapp.svc.cluster.local"
+  namespace: taskapp
+spec:
+  selector:
+    app: postgres    # Routes traffic to pods with this label
+  ports:
+    - port: 5432
+      targetPort: 5432
+  # No "type: LoadBalancer" here — Postgres should NEVER be exposed to the internet
+  # The default ClusterIP means it's only reachable inside the cluster

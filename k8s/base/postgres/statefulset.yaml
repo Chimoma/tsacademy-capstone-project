@@ -1,0 +1,71 @@
+# k8s/base/postgres/statefulset.yaml
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: taskapp
+spec:
+  serviceName: postgres   # Must match the Service name below
+  replicas: 1             # Postgres runs as a single primary (not HA — that's RDS territory)
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine   # Pinned version — never use "latest"
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: taskapp
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret    # This secret will be created in Step 16
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret    # This secret will be created in Step 16
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+              # ↑ Postgres needs data in a subdirectory of the mount point
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          # Readiness probe — only send traffic when Postgres is truly ready
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - taskapp       # ← use your DB username
+                - -d
+                - taskapp       # ← use your DB name
+            initialDelaySeconds: 15
+            periodSeconds: 10
+  # This section creates and manages the PVC automatically
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          - ReadWriteOnce    # EBS can only be attached to one node at a time
+        storageClassName: ebs-gp3
+        resources:
+          requests:
+            storage: 10Gi   # 10GB — adjust based on your expected data size

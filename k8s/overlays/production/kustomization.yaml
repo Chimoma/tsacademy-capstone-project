@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+patches:
+  - path: backend-patch.yaml
+    target:
+      kind: Deployment
+      name: backend
+  - path: frontend-patch.yaml
+    target:
+      kind: Deployment
+      name: frontend
+  - path: backend-pull-secret-patch.yaml
+    target:
+      kind: Deployment
+      name: backend
+  - path: frontend-pull-secret-patch.yaml
+    target:
+      kind: Deployment
+      name: frontend
+  - path: backend-env-patch.yaml
+    target:
+      kind: Deployment
+      name: backend

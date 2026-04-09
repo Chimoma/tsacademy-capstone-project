@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: taskapp
+spec:
+  template:
+    spec:
+      containers:
+        - name: backend
+          image: 050751893161.dkr.ecr.us-east-1.amazonaws.com/taskapp-backend:v1.0.1

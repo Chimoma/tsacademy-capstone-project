@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: taskapp
+data:
+  default.conf: |
+    server {
+      listen 80;
+      root /usr/share/nginx/html;
+      index index.html;
+
+      # This is the critical React SPA fix:
+      # For ANY path that doesn't match a real file, serve index.html
+      # React Router then handles the routing in the browser
+      location / {
+        try_files $uri $uri/ /index.html;
+      }
+
+      # Cache static assets aggressively (they have hashed names from Vite)
+      location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+      }
+
+      # Health check endpoint for Kubernetes probes
+      location /nginx-health {
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+      }
+    }

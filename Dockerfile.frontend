@@ -1,0 +1,41 @@
+# ================================
+# STAGE 1: Build the React app
+# ================================
+FROM node:20-alpine AS builder
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Copy package files first (for better Docker caching)
+# If package.json hasn't changed, Docker skips npm install
+COPY package.json package-lock.json ./
+
+# Install all dependencies
+RUN npm ci
+
+# Copy the rest of the source code
+COPY . .
+
+# Build the production app
+# This runs "vite build" and outputs files to /app/dist/
+# VITE_API_URL tells the frontend where the backend lives
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+RUN npm run build
+
+# ================================
+# STAGE 2: Serve with Nginx
+# ================================
+FROM nginx:alpine
+
+# Copy the built files from Stage 1 into Nginx's serving directory
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy custom Nginx config (handles React Router)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Nginx listens on port 80
+EXPOSE 80
+
+# Start Nginx in the foreground (required for Docker)
+CMD ["nginx", "-g", "daemon off;"]

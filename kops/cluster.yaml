@@ -1,0 +1,96 @@
+apiVersion: kops.k8s.io/v1alpha2
+kind: Cluster
+metadata:
+  name: k8s.cynthia-devops.com
+spec:
+  api:
+    loadBalancer:
+      class: Classic
+      type: Public
+  authorization:
+    rbac: {}
+  channel: stable
+  cloudProvider: aws
+  configBase: s3://kops-state-cynthia-taskapp-2026/k8s.cynthia-devops.com
+  dnsZone: cynthia-devops.com
+  kubernetesVersion: 1.28.15
+  masterPublicName: api.k8s.cynthia-devops.com
+  networkCIDR: 10.0.0.0/16
+  networkID: vpc-096cb7bc147ffa8b0
+  networking:
+    calico: {}
+  nonMasqueradeCIDR: 100.64.0.0/10
+  kubelet:
+    anonymousAuth: false
+  kubernetesApiAccess:
+  - 0.0.0.0/0
+  sshAccess:
+  - 0.0.0.0/0
+  iam:
+    allowContainerRegistry: true
+    legacy: false
+  etcdClusters:
+  - name: main
+    backups:
+      backupStore: s3://kops-state-cynthia-taskapp-2026/k8s.cynthia-devops.com/backups/etcd/main
+    manager:
+      backupRetentionDays: 90
+    cpuRequest: 200m
+    memoryRequest: 100Mi
+    etcdMembers:
+    - encryptedVolume: true
+      instanceGroup: control-plane-us-east-1a
+      name: a
+    - encryptedVolume: true
+      instanceGroup: control-plane-us-east-1b
+      name: b
+    - encryptedVolume: true
+      instanceGroup: control-plane-us-east-1c
+      name: c
+  - name: events
+    backups:
+      backupStore: s3://kops-state-cynthia-taskapp-2026/k8s.cynthia-devops.com/backups/etcd/events
+    manager:
+      backupRetentionDays: 90
+    cpuRequest: 100m
+    memoryRequest: 100Mi
+    etcdMembers:
+    - encryptedVolume: true
+      instanceGroup: control-plane-us-east-1a
+      name: a
+    - encryptedVolume: true
+      instanceGroup: control-plane-us-east-1b
+      name: b
+    - encryptedVolume: true
+      instanceGroup: control-plane-us-east-1c
+      name: c
+  subnets:
+  - cidr: 10.0.64.0/18
+    name: us-east-1a
+    type: Private
+    zone: us-east-1a
+  - cidr: 10.0.128.0/18
+    name: us-east-1b
+    type: Private
+    zone: us-east-1b
+  - cidr: 10.0.192.0/18
+    name: us-east-1c
+    type: Private
+    zone: us-east-1c
+  - cidr: 10.0.32.0/21
+    name: utility-us-east-1a
+    type: Utility
+    zone: us-east-1a
+  - cidr: 10.0.40.0/21
+    name: utility-us-east-1b
+    type: Utility
+    zone: us-east-1b
+  - cidr: 10.0.48.0/21
+    name: utility-us-east-1c
+    type: Utility
+    zone: us-east-1c
+  topology:
+    masters: private
+    nodes: private
+    dns:
+      type: Public

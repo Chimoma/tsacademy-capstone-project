@@ -1,0 +1,37 @@
+# ================================
+# Backend: Flask + Gunicorn
+# ================================
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies needed for psycopg2
+# (PostgreSQL client library)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first (better Docker caching)
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code
+COPY . .
+
+# Create a non-root user for security
+# Running as root inside containers is a security risk
+RUN adduser --disabled-password --gecos '' appuser
+USER appuser
+
+# Expose the port Flask/Gunicorn will listen on
+EXPOSE 5000
+
+# Start the app with Gunicorn (production WSGI server)
+# --workers 2: 2 processes (good for t3.medium)
+# --bind 0.0.0.0:5000: listen on all interfaces
+# run:app → the "app" object inside run.py
+CMD ["gunicorn", "--workers", "2", "--bind", "0.0.0.0:5000", "--timeout", "120", "run:app"]

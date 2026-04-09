@@ -26,6 +26,10 @@ target_metadata = db.Model.metadata
 
 def get_database_url():
     """Build database URL from environment variables."""
+    database_url = os.getenv('DATABASE_URL')
+    if database_url:
+        return database_url
+    
     db_host = os.getenv('DATABASE_HOST')
     db_port = os.getenv('DATABASE_PORT', '5432')
     db_name = os.getenv('DATABASE_NAME')

@@ -1,0 +1,16 @@
+# k8s/base/postgres/storageclass.yaml
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-gp3
+# This provisioner is the AWS EBS CSI driver (installed in your cluster by Kops)
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp3          # gp3 is faster and cheaper than gp2
+  encrypted: "true"  # Encrypt the disk at rest (security requirement)
+volumeBindingMode: WaitForFirstConsumer
+# ↑ This waits until a pod is scheduled before creating the volume
+# This ensures the volume is created in the SAME availability zone as the pod
+reclaimPolicy: Retain
+# ↑ If the PVC is deleted, the EBS volume STAYS — data is safe

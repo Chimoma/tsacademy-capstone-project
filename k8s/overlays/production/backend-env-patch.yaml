@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: taskapp
+spec:
+  template:
+    spec:
+      containers:
+        - name: backend
+          env:
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: POSTGRES_USER
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: POSTGRES_PASSWORD
