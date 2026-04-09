@@ -2,8 +2,9 @@
 ## TeamFlow — Cloud-Native Task Manager
 
 **Capstone Project | TS Academy DevOps Engineering Program | 2026**
-**Author**: Oluwatobiloba Durodola
+
 **Live URL**: https://taskapp.cynthia-devops.com
+
 **API**: https://api.cynthia-devops.com/api/health
 
 ---
