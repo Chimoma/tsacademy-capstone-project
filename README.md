@@ -1,4 +1,5 @@
-# TeamFlow — Cloud-Native Task Manager
+# capstone-project-tsacademy
+## TeamFlow — Cloud-Native Task Manager
 
 **Capstone Project | TS Academy DevOps Engineering Program | 2026**
 **Author**: Oluwatobiloba Durodola
